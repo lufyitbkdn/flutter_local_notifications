@@ -556,7 +556,7 @@ public class FlutterLocalNotificationsPlugin
     Intent notificationIntent = new Intent(context, ScheduledNotificationReceiver.class);
     notificationIntent.putExtra(NOTIFICATION_DETAILS, notificationDetailsJson);
     PendingIntent pendingIntent =
-        getBroadcastPendingIntent(context, notificationDetails.id, notificationIntent);
+        getBroadcastPendingIntent(context, notificationDetails.id, notificationIntent, false);
 
     AlarmManager alarmManager = getAlarmManager(context);
     setupAlarm(
@@ -579,7 +579,7 @@ public class FlutterLocalNotificationsPlugin
     Intent notificationIntent = new Intent(context, ScheduledNotificationReceiver.class);
     notificationIntent.putExtra(NOTIFICATION_DETAILS, notificationDetailsJson);
     PendingIntent pendingIntent =
-        getBroadcastPendingIntent(context, notificationDetails.id, notificationIntent);
+        getBroadcastPendingIntent(context, notificationDetails.id, notificationIntent, false);
     AlarmManager alarmManager = getAlarmManager(context);
     long epochMilli =
         ZonedDateTime.of(
@@ -605,7 +605,7 @@ public class FlutterLocalNotificationsPlugin
     Intent notificationIntent = new Intent(context, ScheduledNotificationReceiver.class);
     notificationIntent.putExtra(NOTIFICATION_DETAILS, notificationDetailsJson);
     PendingIntent pendingIntent =
-        getBroadcastPendingIntent(context, notificationDetails.id, notificationIntent);
+        getBroadcastPendingIntent(context, notificationDetails.id, notificationIntent, false);
     AlarmManager alarmManager = getAlarmManager(context);
     if (notificationDetails.scheduleMode == null) {
       // This is to account for notifications created in older versions prior to allowWhileIdle
@@ -647,8 +647,8 @@ public class FlutterLocalNotificationsPlugin
     return notificationResponseMap;
   }
 
-  private static PendingIntent getBroadcastPendingIntent(Context context, int id, Intent intent) {
-    int flags = PendingIntent.FLAG_UPDATE_CURRENT;
+  private static PendingIntent getBroadcastPendingIntent(Context context, int id, Intent intent, boolean isCancel) {
+    int flags = isCancel? PendingIntent.FLAG_CANCEL_CURRENT : PendingIntent.FLAG_UPDATE_CURRENT;
     if (VERSION.SDK_INT >= VERSION_CODES.M) {
       flags |= PendingIntent.FLAG_IMMUTABLE;
     }
@@ -683,7 +683,7 @@ public class FlutterLocalNotificationsPlugin
     Intent notificationIntent = new Intent(context, ScheduledNotificationReceiver.class);
     notificationIntent.putExtra(NOTIFICATION_DETAILS, notificationDetailsJson);
     PendingIntent pendingIntent =
-        getBroadcastPendingIntent(context, notificationDetails.id, notificationIntent);
+        getBroadcastPendingIntent(context, notificationDetails.id, notificationIntent, false);
     AlarmManager alarmManager = getAlarmManager(context);
 
     if (notificationDetails.scheduleMode == null) {
@@ -1768,7 +1768,7 @@ public class FlutterLocalNotificationsPlugin
 
   private void cancelNotification(Integer id, String tag) {
     Intent intent = new Intent(applicationContext, ScheduledNotificationReceiver.class);
-    PendingIntent pendingIntent = getBroadcastPendingIntent(applicationContext, id, intent);
+    PendingIntent pendingIntent = getBroadcastPendingIntent(applicationContext, id, intent, true);
     AlarmManager alarmManager = getAlarmManager(applicationContext);
     alarmManager.cancel(pendingIntent);
     NotificationManagerCompat notificationManager = getNotificationManager(applicationContext);
@@ -1793,7 +1793,7 @@ public class FlutterLocalNotificationsPlugin
     Intent intent = new Intent(applicationContext, ScheduledNotificationReceiver.class);
     for (NotificationDetails scheduledNotification : scheduledNotifications) {
       PendingIntent pendingIntent =
-          getBroadcastPendingIntent(applicationContext, scheduledNotification.id, intent);
+          getBroadcastPendingIntent(applicationContext, scheduledNotification.id, intent, true);
       AlarmManager alarmManager = getAlarmManager(applicationContext);
       alarmManager.cancel(pendingIntent);
     }
